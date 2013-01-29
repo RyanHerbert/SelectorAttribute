@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package>
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>    
+    <description>Attribute to show checkboxes/dropdowns for multiple choice lists for ASP.NET MVC</description>
+    <authors>Ryan Herbert</authors>
+    <language>en-US</language>
+  </metadata>
+  <files>    
+    <file src="Content\**" target="content" />
+    <file src="**" target="src" exclude="obj\**;bin\**" />
+  </files>
+</package>

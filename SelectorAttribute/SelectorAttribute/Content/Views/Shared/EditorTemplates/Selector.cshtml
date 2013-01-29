@@ -1,0 +1,134 @@
+﻿@using System.Collections
+@using System.Web.Mvc
+@using System.Web.Mvc.Html
+@using SelectorAttribute
+
+@{
+  var supportsMany = typeof(IEnumerable).IsAssignableFrom(ViewData.ModelMetadata.ModelType);
+  var selectorModel = (Selector)ViewData.ModelMetadata.AdditionalValues["SelectorModelMetadata"];
+  var fieldName = ViewData.TemplateInfo.GetFullHtmlFieldName("");
+  var validationClass = ViewData.ModelState.IsValidField(fieldName) ? "" : "input-validation-error";
+
+
+  // Loop through the items and make sure they are Selected if the value has been posted
+  if (Model != null)
+  {
+    foreach (var item in selectorModel.Items)
+    {
+      if (supportsMany)
+      {
+        var modelStateValue = GetModelStateValue<string[]>(Html, fieldName) ?? ((IEnumerable)Model).OfType<object>().Select(m => m.ToString());
+        item.Selected = modelStateValue.Contains(item.Value);
+      }
+      else
+      {
+        var modelStateValue = GetModelStateValue<string>(Html, fieldName);
+        if(modelStateValue != null)
+        {
+          item.Selected = String.CompareOrdinal(modelStateValue, item.Value) == 0 ;
+        }
+        else
+        {
+          item.Selected = String.CompareOrdinal(item.Value, Model.ToString()) == 0 ;
+        } 
+      }
+    }
+  }
+}
+
+@functions
+{
+  public MvcHtmlString BuildInput(string fieldName, SelectListItem item, string inputType)
+  {
+    var id = ViewData.TemplateInfo.GetFullHtmlFieldId(item.Value);
+
+    var wrapper = new TagBuilder("div");
+    wrapper.AddCssClass("selector-item");
+
+    var input = new TagBuilder("input");
+    input.MergeAttribute("type", inputType);
+    input.MergeAttribute("name", fieldName);
+    input.MergeAttribute("value", item.Value);
+    input.MergeAttribute("id", id);
+    input.MergeAttributes(Html.GetUnobtrusiveValidationAttributes(fieldName, ViewData.ModelMetadata));
+
+    if (item.Selected)
+      input.MergeAttribute("checked", "checked");
+
+    var label = new TagBuilder("label");
+    label.MergeAttribute("for", id);
+    label.MergeAttribute("class", "checkbox");
+
+    label.InnerHtml += input.ToString(TagRenderMode.SelfClosing);
+    label.InnerHtml += item.Text;
+
+    wrapper.InnerHtml += label;
+
+    return new MvcHtmlString(wrapper.ToString());
+  }
+
+  /// <summary>
+  /// Get the raw value from model state
+  /// </summary>
+  public static T GetModelStateValue<T>(HtmlHelper helper, string key)
+  {
+    ModelState modelState;
+    if (helper.ViewData.ModelState.TryGetValue(key, out modelState) && modelState.Value != null)
+      return (T)modelState.Value.ConvertTo(typeof(T), null);
+    return default(T);
+  }
+}
+
+
+@if (ViewData.ModelMetadata.IsReadOnly)
+{
+  var readonlyText = selectorModel.Items.Where(i => i.Selected).ToDelimitedString(i => i.Text);
+  if (string.IsNullOrWhiteSpace(readonlyText))
+  {
+    readonlyText = selectorModel.OptionLabel ?? "Not Set";
+  }
+    
+    @readonlyText
+
+  foreach (var item in selectorModel.Items.Where(i => i.Selected))
+  {
+        @Html.Hidden(fieldName, item.Value)
+  }
+}
+else
+{
+  if (selectorModel.AllowMultipleSelection)
+  {
+    if (selectorModel.Items.Count() < selectorModel.BulkSelectionThreshold)
+    {
+            <div class="@validationClass">
+                @foreach (var item in selectorModel.Items)
+                {
+                    @BuildInput(fieldName, item, "checkbox")
+                }
+            </div>
+    }
+    else
+    {
+            @Html.ListBox("", selectorModel.Items)
+    }
+  }
+  else if (selectorModel.Items.Count() < selectorModel.BulkSelectionThreshold)
+  {
+        <div class="@validationClass">
+            @if (selectorModel.OptionLabel != null)
+            {
+                @BuildInput(fieldName, new SelectListItem { Text = selectorModel.OptionLabel, Value = "" }, "radio")
+            }
+
+            @foreach (var item in selectorModel.Items)
+            {
+                @BuildInput(fieldName, item, "radio")
+            }
+        </div>
+  }
+  else
+  {
+        @Html.DropDownList("", selectorModel.Items, selectorModel.OptionLabel)
+    }
+}

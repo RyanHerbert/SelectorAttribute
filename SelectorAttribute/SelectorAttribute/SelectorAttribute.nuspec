@@ -6,6 +6,8 @@
     <description>Attribute to show checkboxes/dropdowns for multiple choice lists for ASP.NET MVC</description>
     <authors>Ryan Herbert</authors>
     <language>en-US</language>
+    <projectUrl>http://github.com/RyanHerbert/SelectorAttribute</projectUrl>
+    <licenseUrl>http://opensource.org/licenses/MS-PL</licenseUrl>
   </metadata>
   <files>    
     <file src="Content\**" target="content" />

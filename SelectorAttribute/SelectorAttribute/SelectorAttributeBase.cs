@@ -7,7 +7,7 @@ using System.Web.Mvc;
 namespace SelectorAttribute
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public abstract class SelectorAttribute : Attribute, IMetadataAware
+    public abstract class SelectorAttributeBase : Attribute, IMetadataAware
     {
         /// <summary>
         /// Get the list of items that the user can choose from. This method must be overridden in derived classes.
@@ -25,7 +25,7 @@ namespace SelectorAttribute
         /// </summary>
         public int BulkSelectionThreshold { get; set; }
         
-        protected SelectorAttribute()
+        protected SelectorAttributeBase()
         {
             BulkSelectionThreshold = 8;
             OptionLabel = "-- Select One --";

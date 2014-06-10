@@ -4,7 +4,7 @@
 @using SelectorAttribute
 
 @{
-  var supportsMany = typeof(IEnumerable).IsAssignableFrom(ViewData.ModelMetadata.ModelType);
+  var supportsMany = typeof(IEnumerable).IsAssignableFrom(ViewData.ModelMetadata.ModelType) && ViewData.ModelMetadata.ModelType != typeof(string);
   var selectorModel = (Selector)ViewData.ModelMetadata.AdditionalValues["SelectorModelMetadata"];
   var fieldName = ViewData.TemplateInfo.GetFullHtmlFieldName("");
   var validationClass = ViewData.ModelState.IsValidField(fieldName) ? "" : "input-validation-error";

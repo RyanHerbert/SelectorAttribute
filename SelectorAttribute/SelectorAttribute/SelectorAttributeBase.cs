@@ -33,7 +33,7 @@ namespace SelectorAttribute
 
         public void OnMetadataCreated(ModelMetadata metadata)
         {
-            bool allowMultipleSelection = typeof(System.Collections.IEnumerable).IsAssignableFrom(metadata.ModelType);
+            bool allowMultipleSelection = typeof(System.Collections.IEnumerable).IsAssignableFrom(metadata.ModelType) && metadata.ModelType != typeof(string);
 
             var selector = new Selector
             {
